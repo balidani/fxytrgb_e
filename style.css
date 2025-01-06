@@ -1,0 +1,10 @@
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+canvas {
+  display: block;  /* Removes the default canvas behavior of having a slight space below it (like an inline element) */
+  width: 100vw;
+  height: 100vh;
+}
