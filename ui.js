@@ -146,15 +146,3 @@ start();
 document.getElementById('canvas').addEventListener('click', function() {
     window.location.reload();
 });
-
-const canvas = document.getElementById('canvas');
-
-canvas.addEventListener('click', () => {
-  if (!document.fullscreenElement) {
-    canvas.requestFullscreen().catch(err => {
-      alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-    });
-  } else {
-    document.exitFullscreen();
-  }
-});
