@@ -118,16 +118,16 @@ void main() {
   vec2 screenPosition = (gl_FragCoord.xy) / scale;
   vec3 texColor = texture(state, screenPosition).rgb;
 
-  // float r = (rand(screenPosition * 4.0) - 0.5) * 0.25;
-  // float g = (rand(screenPosition * 4.0) - 0.5) * 0.25;
-  // float b = (rand(screenPosition * 4.0) - 0.5) * 0.25;
+  float r = (rand(screenPosition * vec2(4.0, 1.0)) - 0.5) * 0.25;
+  float g = (rand(screenPosition * vec2(1.0, 4.0)) - 0.5) * 0.25;
+  float b = (rand(screenPosition * vec2(4.0, 4.0)) - 0.5) * 0.25;
 
-  // // texColor = 0.2 + pow(texColor, vec3(2.0));
+  // texColor = 0.2 + pow(texColor, vec3(2.0));
 
   // texColor = vec3((texColor.r + texColor.g + texColor.b) / 2.0);
-  // texColor.r += r;
-  // texColor.g += g;
-  // texColor.b += b;
+  texColor.r += r;
+  texColor.g += g;
+  texColor.b += b;
   fragColor = vec4(texColor, 1.0);
 }
 `;

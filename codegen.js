@@ -232,10 +232,7 @@ FUNCS['sign'] = {
   params: 1,
   arg_types: [ALL_ARGS],
 };
-// FUNCS['fract'] = {
-//   params: 1,
-//   arg_types: [ALL_ARGS],
-// };
+
 FUNCS['exp'] = {
   params: 1,
   arg_types: [ALL_ARGS],
@@ -268,3 +265,8 @@ FUNCS['dot'] = {
   params: 4,
   arg_types: [ALL_ARGS, ALL_ARGS, ALL_ARGS, ALL_ARGS],
 };
+
+// FUNCS['fract'] = {
+//   params: 1,
+//   arg_types: [ALL_ARGS],
+// };
