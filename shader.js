@@ -57,8 +57,11 @@ vec3 hsv2rgb(vec3 c)
 void main() {
   vec4 self = texture(state, gl_FragCoord.xy / scale);
   vec2 at = (gl_FragCoord.xy) / scale;
-  at -= vec2(0.5);
-  at *= 2.0 * PI;
+  
+  at -= vec2(0.5, 0.5);
+  // at -= vec2(0.3, 0.1);
+  // at *= 0.2 * PI;
+  // at = rotate(at, 0.1);
 
   float x = at.x;
   float y = at.y;
@@ -82,10 +85,11 @@ void main() {
   float r = 0.0;
   float g = 0.0;
   float b = 0.0;
+
   ${program}
 
   self.rgb = hsv2rgb(vec3(h, s, v));
-  self.rgb += vec3(r, g, b);
+  // self.rgb += vec3(r, g, b);
 
   self.rgb *= vec3(0.15);
   fragColor = vec4(self);
@@ -118,9 +122,18 @@ void main() {
   vec2 screenPosition = (gl_FragCoord.xy) / scale;
   vec3 texColor = texture(state, screenPosition).rgb;
 
-  float r = (rand(screenPosition * vec2(4.0, 1.0)) - 0.5) * 0.25;
-  float g = (rand(screenPosition * vec2(1.0, 4.0)) - 0.5) * 0.25;
-  float b = (rand(screenPosition * vec2(4.0, 4.0)) - 0.5) * 0.25;
+  float tt = time * 0.01;
+  // float r = (rand(screenPosition * vec2(2.0, 1.0)) - 0.5) * 0.5;
+  // float g = (rand(screenPosition * vec2(1.0, 2.1)) - 0.5) * 0.5;
+  // float b = (rand(screenPosition * vec2(2.1, 2.1)) - 0.5) * 0.5;
+
+  float r = (rand(screenPosition * vec2(4.0, 4.0)) - 0.5) * 0.125;
+  float g = (rand(screenPosition * vec2(4.0, 4.0)) - 0.5) * 0.125;
+  float b = (rand(screenPosition * vec2(4.1, 4.0)) - 0.5) * 0.125;
+
+  // r = pow(r + g + b, 0.5) / 1.0;
+  // g = r;
+  // b = r;
 
   // texColor = 0.2 + pow(texColor, vec3(2.0));
 

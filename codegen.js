@@ -11,7 +11,7 @@ const ff = (n) => {
   return res;
 };
 
-let VARS = ['x', 'y', 'p', 'q', 'tt', 'tt', 'tt'];
+let VARS = ['x', 'y', 'p', 'q', 'tt'];
 let NOISE_COUNT = 0;
 
 class AConst {
@@ -187,7 +187,7 @@ export const BuildProgram = () => {
     }
   };
 
-  VARS = ['x', 'y', 'p', 'q', 'tt', 'h', 'r', 'g', 'b'];
+  VARS = ['x', 'y', 'p', 'q', 'tt', 'h'];
   const pH = make();
   VARS = ['x', 'y', 'p', 'q', 'tt', 's'];
   const pS = make();
@@ -266,7 +266,7 @@ FUNCS['dot'] = {
   arg_types: [ALL_ARGS, ALL_ARGS, ALL_ARGS, ALL_ARGS],
 };
 
-// FUNCS['fract'] = {
-//   params: 1,
-//   arg_types: [ALL_ARGS],
-// };
+FUNCS['fract'] = {
+  params: 1,
+  arg_types: [ALL_ARGS],
+};
