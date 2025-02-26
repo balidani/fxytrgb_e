@@ -66,14 +66,27 @@ void main() {
   float p = atan(at.y, at.x) / PI * 2.0;
   float q = length(at);
 
-  float v0 = 0.0;
   float tt = (t * 0.001);
 
+  // v0 = (dot(vec2(-0.0204, q),
+  //         vec2(tt, ((((tt - -0.5745) - mix(fract(0.6685),
+  //         fract(0.6685 + atan(0.3279, -0.4514)), x)) - (((max(tt, q) + ((((0.6357 / (tt / (tan(y) * q))) * ((atan(0.9587, (-0.822 * (tt / dot(vec2(tt, -0.6979),
+  //         vec2(tt, tt))))) * -0.9273) / (cos(-1.0 * (y * p)) - (-0.7007 / y)))) - 0.1138) - y)) * tt) + pow(0.7753, x))) / p))) / -0.1262);
+
+  // LLM thought this is the simplification of the above expression
+  // v0 = dot(vec2(-0.0204, q), vec2(tt, 1.0/p * (tt + pow(0.7753, x)))) / -0.1262;
+  
+  float h = 0.0;
+  float s = 0.0;
+  float v = 0.0;
+  float r = 0.0;
+  float g = 0.0;
+  float b = 0.0;
   ${program}
 
-  self.r += v0;
-  self.g += v0;
-  self.b += v0;
+  self.rgb = hsv2rgb(vec3(h, s, v));
+  self.rgb += vec3(r, g, b);
+
   self.rgb *= vec3(0.15);
   fragColor = vec4(self);
 }`;
@@ -105,16 +118,16 @@ void main() {
   vec2 screenPosition = (gl_FragCoord.xy) / scale;
   vec3 texColor = texture(state, screenPosition).rgb;
 
-  float r = (rand(screenPosition * 4.0) - 0.5) * 0.25;
-  float g = (rand(screenPosition * 4.0) - 0.5) * 0.25;
-  float b = (rand(screenPosition * 4.0) - 0.5) * 0.25;
+  // float r = (rand(screenPosition * 4.0) - 0.5) * 0.25;
+  // float g = (rand(screenPosition * 4.0) - 0.5) * 0.25;
+  // float b = (rand(screenPosition * 4.0) - 0.5) * 0.25;
 
-  // texColor = 0.2 + pow(texColor, vec3(2.0));
+  // // texColor = 0.2 + pow(texColor, vec3(2.0));
 
-  texColor = vec3((texColor.r + texColor.g + texColor.b) / 2.0);
-  texColor.r += r;
-  texColor.g += g;
-  texColor.b += b;
+  // texColor = vec3((texColor.r + texColor.g + texColor.b) / 2.0);
+  // texColor.r += r;
+  // texColor.g += g;
+  // texColor.b += b;
   fragColor = vec4(texColor, 1.0);
 }
 `;

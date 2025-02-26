@@ -11,7 +11,7 @@ const ff = (n) => {
   return res;
 };
 
-const VARS = ['x', 'y', 'p', 'q', 'tt', 'tt', 'tt'];
+let VARS = ['x', 'y', 'p', 'q', 'tt', 'tt', 'tt'];
 let NOISE_COUNT = 0;
 
 class AConst {
@@ -187,10 +187,29 @@ export const BuildProgram = () => {
     }
   };
 
-  const p0 = make();
+  VARS = ['x', 'y', 'p', 'q', 'tt', 'h', 'r', 'g', 'b'];
+  const pH = make();
+  VARS = ['x', 'y', 'p', 'q', 'tt', 's'];
+  const pS = make();
+  VARS = ['x', 'y', 'p', 'q', 'tt', 'v'];
+  const pV = make();
+
+  VARS = ['x', 'y', 'p', 'q', 'tt', 'h', 'r'];
+  const pR = make();
+  VARS = ['x', 'y', 'p', 'q', 'tt', 'h', 'g'];
+  const pG = make();
+  VARS = ['x', 'y', 'p', 'q', 'tt', 'h', 'b'];
+  const pB = make();
+
+  VARS = ['x', 'y', 'p', 'q', 'tt'];
 
   return `
-    v0 = ${p0.print()};
+    h = ${pH.print()};
+    s = ${pS.print()};
+    v = ${pV.print()};
+    r = ${pR.print()};
+    g = ${pG.print()};
+    b = ${pB.print()};
   `;
 };
 
@@ -213,10 +232,10 @@ FUNCS['sign'] = {
   params: 1,
   arg_types: [ALL_ARGS],
 };
-FUNCS['fract'] = {
-  params: 1,
-  arg_types: [ALL_ARGS],
-};
+// FUNCS['fract'] = {
+//   params: 1,
+//   arg_types: [ALL_ARGS],
+// };
 FUNCS['exp'] = {
   params: 1,
   arg_types: [ALL_ARGS],
