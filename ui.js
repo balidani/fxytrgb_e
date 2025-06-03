@@ -83,11 +83,11 @@ const start = () => {
 
   const play = () => {
     handler.timer = setInterval(() => {
-        if (handler.t == 256) {
-          console.log('fxpreview');
-          fxpreview();
-          // clearInterval(handler.timer);
-        }
+        // if (handler.t == 256) {
+        //   console.log('fxpreview');
+        //   fxpreview();
+        //   clearInterval(handler.timer);
+        // }
         handler.step();
         handler.draw();
         handler.t++;
