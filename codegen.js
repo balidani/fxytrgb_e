@@ -99,9 +99,9 @@ class AMath {
     if (this.func === 'mod') {
       return `${this.func}(${printed_args[0]} > 0.0 ? ${printed_args[0]} : -(${printed_args[0]}),
       ${printed_args[1]} > 0.0 ? 
-        max(${printed_args[1]}, 0.1)
+        max(${printed_args[1]}, 1.0)
         : -(
-        max(${printed_args[1]}, 0.1)
+        max(${printed_args[1]}, 1.0)
         ))`;
     }
     if (this.func === 'mix') {
@@ -241,10 +241,10 @@ FUNCS['pow'] = {
   params: 2,
   arg_types: [ALL_ARGS, ALL_ARGS],
 };
-FUNCS['mix'] = {
-  params: 3,
-  arg_types: [ALL_ARGS, ALL_ARGS, ALL_ARGS],
-};
+// FUNCS['mix'] = {
+//   params: 3,
+//   arg_types: [ALL_ARGS, ALL_ARGS, ALL_ARGS],
+// };
 FUNCS['dot'] = {
   params: 4,
   arg_types: [ALL_ARGS, ALL_ARGS, ALL_ARGS, ALL_ARGS],
