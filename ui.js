@@ -83,11 +83,11 @@ const start = () => {
 
   const play = () => {
     handler.timer = setInterval(() => {
-        // if (handler.t == 256) {
-        //   console.log('fxpreview');
-        //   fxpreview();
-        //   clearInterval(handler.timer);
-        // }
+        if (handler.t == 256) {
+          console.log('fxpreview');
+          fxpreview();
+          // clearInterval(handler.timer);
+        }
         handler.step();
         handler.draw();
         handler.t++;
@@ -142,6 +142,15 @@ const start = () => {
 
 };
 start();
+
+
+const download = function() {
+  var link = document.createElement('a');
+  link.download = `${window.fxhash}.png`;
+  link.href = document.getElementById('canvas').toDataURL()
+  link.click();
+};
+window.download = download;
 
 document.getElementById('canvas').addEventListener('click', function() {
     window.location.reload();

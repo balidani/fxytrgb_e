@@ -14,7 +14,8 @@
       var fxhash = "oo" + Array(49).fill(0).map(_=>alphabet[(Math.random()*alphabet.length)|0]).join('')
       // oo5EThye6fWBQi6dtAH8ufszGrqZAS41atMz7RVP4HqcC4D6Q9A
       // oo75xftnV9AdfoiSgaCPQHhX3D8TkSVS5voCajKQTMpdEM49JkQ
-      
+      // fxhash = "oo6FjTqmfJS5KS3wwjjUXuCcQDdEmhnEXBptkSgra7bNsH3L2rR";
+      // fxhash = "oozqDwFfb9YjoqseCw3X1vcWPx2DH1xn1E8xPXT32F7QdccRmwt";
       let b58dec = str=>[...str].reduce((p,c)=>p*alphabet.length+alphabet.indexOf(c)|0, 0)
       let fxhashTrunc = fxhash.slice(2)
       let regex = new RegExp(".{" + ((fxhashTrunc.length/4)|0) + "}", 'g')
@@ -45,6 +46,8 @@
     <script type="module" src="ui.js"></script>
   </head>
   <body>
+    <div class="canvas-container">
     <canvas id="canvas" width="1024" height="1024"></canvas>
+    </div>
   </body>
 </html>

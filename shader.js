@@ -56,24 +56,39 @@ vec3 hsv2rgb(vec3 c)
 
 void main() {
   vec4 self = texture(state, gl_FragCoord.xy / scale);
-  vec2 at = (gl_FragCoord.xy) / scale;
-  at -= vec2(0.5);
-  at *= 2.0 * PI;
 
-  float x = at.x;
-  float y = at.y;
-
-  float p = atan(at.y, at.x) / PI * 2.0;
-  float q = length(at);
-
-  float v0 = 0.0;
   float tt = (t * 0.001);
-  
-  ${program}
 
-  self.r = v0;
-  self.g = v0;
-  self.b = v0;
+  // float vAvg = 0.0;
+  // for (int i = 0; i <= 0; ++i) {
+  //   for (int j = 0; j <= 0; ++j) {
+  //     float v0 = 0.0;
+  //     vec2 at = (gl_FragCoord.xy + vec2(j, i)) / scale;
+
+      float v0 = 0.0;
+      float v1 = 0.0;
+      float v2 = 0.0;
+
+      vec2 at = (gl_FragCoord.xy) / scale;
+      at -= vec2(0.5, 0.5);
+      float x = at.x;
+      float y = at.y;
+
+      float p = atan(at.y, at.x) / PI * 2.0;
+      float q = length(at);
+
+      ${program}
+      v0 = clamp(v0, 0.0, 1.0);
+
+      // vAvg += v0;
+  //   }
+  // }
+  // vAvg /= 1.0;
+
+  float fac = 1.0;
+  self.r = mod(v0, 1.0 / fac) * fac;
+  self.g = mod(v0, 1.0 / fac) * fac;
+  self.b = mod(v0, 1.0 / fac) * fac;
   // self.rgb *= vec3(0.15);
   fragColor = vec4(self);
 }`;
@@ -97,26 +112,69 @@ uniform vec2 scale;
 uniform float time;
 out vec4 fragColor;
 
+// Tilt-shift parameters
+const float focusCenter = 0.5; // Center of focus (0.0 to 1.0)
+const float focusWidth = 0.33;  // Width of the in-focus area
+const float blurStrength = 8.0; // Maximum blur strength
+
 float rand(vec2 n) { 
     return fract(sin(dot(n, vec2(12.9898, 7.1414))) * 43459.5453);
 }
 
-void main() {
-  vec2 screenPosition = (gl_FragCoord.xy) / scale;
-  vec3 texColor = texture(state, screenPosition).rgb;
-
-  float r = (rand(screenPosition * 4.0) - 0.5) * 0.1;
-  float g = (rand(screenPosition * 4.0) - 0.5) * 0.1;
-  float b = (rand(screenPosition * 4.0) - 0.5) * 0.1;
-
-  // texColor = 0.2 + pow(texColor, vec3(2.0));
-  // texColor = vec3((texColor.r + texColor.g + texColor.b) / 3.0);
-
-  texColor.r += r;
-  texColor.g += g;
-  texColor.b += b;
-  fragColor = vec4(texColor, 1.0);
+// Simple box blur function
+vec3 boxBlur(vec2 uv, float blurSize) {
+    vec3 color = vec3(0.0);
+    float total = 0.0;
+    
+    // Adjust sample count based on blur size
+    int sampleCount = int(blurSize * 2.0) + 1;
+    sampleCount = min(sampleCount, 7); // Limit samples for performance
+    
+    for (int x = -sampleCount; x <= sampleCount; x++) {
+        for (int y = -sampleCount; y <= sampleCount; y++) {
+            vec2 offset = vec2(float(x), float(y)) * blurSize / scale;
+            vec2 samplePos = uv + offset;
+            // When close to the edge, clamp the sample position
+            samplePos = clamp(samplePos, vec2(0.0), vec2(1.0));
+            
+            // Only sample if within bounds
+            if (samplePos.x >= 0.0 && samplePos.x <= 1.0 && 
+                samplePos.y >= 0.0 && samplePos.y <= 1.0) {
+                color += texture(state, samplePos).rgb;
+                total += 1.0;
+            }
+        }
+    }
+    
+    return color / total;
 }
+
+void main() {
+    vec2 screenPosition = gl_FragCoord.xy / scale;
+    
+    // Calculate distance from focus center (vertical tilt-shift)
+    float distFromCenter = abs(screenPosition.y - focusCenter);
+
+    // Calculate blur amount based on distance from center
+    float blurAmount = smoothstep(0.0, focusWidth, distFromCenter) * blurStrength;
+    
+    // Get color with blur
+    vec3 texColor;
+    // Apply blur
+    texColor = boxBlur(screenPosition, blurAmount);
+    
+    // Add noise
+    float r = (rand(screenPosition * 4.0) - 0.5) * 0.1;
+    float g = (rand(screenPosition * 4.0 + vec2(0.011, 0.0)) - 0.5) * 0.1;
+    float b = (rand(screenPosition * 4.0 + vec2(0.0, 0.07)) - 0.5) * 0.1;
+    
+    texColor.r += r;
+    texColor.g += g;
+    texColor.b += b;
+    
+    fragColor = vec4(texColor, 1.0);
+}
+
 `;
 
 export const Shader = {
