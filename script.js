@@ -222,6 +222,9 @@ class AVar {
   static random(depth=0) {
     return new AVar(choice(VARS));
   }
+  dependencies() {
+    return new Set([this.name]);
+  }
 }
 
 const ARITHMETIC_OPS = ['+', '-', '*', '/'];
@@ -274,6 +277,11 @@ class ASimpleOp {
       ASimpleExpr.random(depth + 1),
       ASimpleExpr.random(depth + 1),
       choice(Object.values(ARITHMETIC_OPS)));
+  }
+  dependencies() {
+    return new Set(
+      [...this.left_term.dependencies(),
+       ...this.right_term.dependencies()]);
   }
 }
 
@@ -399,6 +407,12 @@ const BuildColorProgram = () => {
   const make = () => {
     while (true) {
       const expr = ASimpleExpr.random(0);
+      if (expr.depth() < 2) {
+        continue;
+      }
+      if (expr.dependencies().size < 1) {
+        continue;
+      }
       return expr;
     }
   };
