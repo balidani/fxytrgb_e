@@ -7,7 +7,7 @@ const testProgram = (program) => {
   testCanvas.setAttribute('width', 128);
   testCanvas.setAttribute('height', 128);
 
-  let testHandler = new ShaderHandler(testCanvas);
+  let testHandler = new ShaderHandler(testCanvas, /* isTest= */ true);
   testHandler.new(program);
 
   for (let i = 0; i < 256; ++i) {
@@ -64,6 +64,7 @@ const testedProgram = () => {
   let tries = 0;
   while (tries < 100) {
     program = BuildProgram();
+    console.log(`Testing program ${tries}`);
     if (testProgram(program)) {
       return program;
     }

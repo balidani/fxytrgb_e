@@ -55,42 +55,30 @@ vec3 hsv2rgb(vec3 c)
 }
 
 void main() {
-  vec4 self = texture(state, gl_FragCoord.xy / scale);
-
+  vec2 at = gl_FragCoord.xy / scale;
+  vec4 self = texture(state, at);
+  at -= vec2(0.3, 0.2);
+  at *= 8.0;
   float tt = (t * 0.001);
+  float x = at.x;
+  float y = at.y;
 
-  // float vAvg = 0.0;
-  // for (int i = 0; i <= 0; ++i) {
-  //   for (int j = 0; j <= 0; ++j) {
-  //     float v0 = 0.0;
-  //     vec2 at = (gl_FragCoord.xy + vec2(j, i)) / scale;
+  float p = atan(at.y, at.x) / PI * 2.0;
+  float q = length(at);
+  
+  float v0 = 0.0;
 
-      float v0 = 0.0;
-      float v1 = 0.0;
-      float v2 = 0.0;
+  ${program}
 
-      vec2 at = (gl_FragCoord.xy) / scale;
-      at -= vec2(0.5, 0.5);
-      float x = at.x;
-      float y = at.y;
-
-      float p = atan(at.y, at.x) / PI * 2.0;
-      float q = length(at);
-
-      ${program}
-      v0 = clamp(v0, 0.0, 1.0);
-
-      // vAvg += v0;
-  //   }
-  // }
-  // vAvg /= 1.0;
-
-  float fac = 1.0;
-  self.r = mod(v0, 1.0 / fac) * fac;
-  self.g = mod(v0, 1.0 / fac) * fac;
-  self.b = mod(v0, 1.0 / fac) * fac;
-  // self.rgb *= vec3(0.15);
-  fragColor = vec4(self);
+  float v1 = clamp(v0, 0.0, 1.0);
+  float v2 = clamp(v0, -1.0, 1.0);
+  float v3 = clamp(v0, -2.0, 2.0);
+  float v4 = clamp(v0, -4.0, 4.0);
+  
+  fragColor = vec4(
+    v1,
+    v2 * 0.5 + 0.5,
+    v3 * 0.25 + 0.5, 1.0);
 }`;
 
 const quad = `#version 300 es
@@ -110,6 +98,7 @@ precision highp float;
 uniform sampler2D state;
 uniform vec2 scale;
 uniform float time;
+uniform float isTest;
 out vec4 fragColor;
 
 // Tilt-shift parameters
@@ -128,12 +117,15 @@ vec3 boxBlur(vec2 uv, float blurSize) {
     
     // Adjust sample count based on blur size
     int sampleCount = int(blurSize * 2.0) + 1;
-    sampleCount = min(sampleCount, 7); // Limit samples for performance
+    sampleCount = min(sampleCount, 16); // Limit samples for performance
     
     for (int x = -sampleCount; x <= sampleCount; x++) {
         for (int y = -sampleCount; y <= sampleCount; y++) {
+            float distance = length(vec2(float(x), float(y)));
+            if (distance > blurSize * 2.0) continue; // Skip samples outside the blur radius
+
             vec2 offset = vec2(float(x), float(y)) * blurSize / scale;
-            vec2 samplePos = uv + offset;
+            vec2 samplePos = uv + offset; // Add slight randomness
             // When close to the edge, clamp the sample position
             samplePos = clamp(samplePos, vec2(0.0), vec2(1.0));
             
@@ -173,6 +165,10 @@ void main() {
     texColor.b += b;
     
     fragColor = vec4(texColor, 1.0);
+
+    if (isTest > 0.0) {
+        fragColor = vec4(texture(state, screenPosition).rgb, 1.0);
+    }
 }
 
 `;

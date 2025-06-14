@@ -5,7 +5,8 @@ import { Shader } from './shader.js';
 let gl = null;
 
 export class ShaderHandler {
-  constructor(canvas) {
+  constructor(canvas, isTest = false) {
+    this.isTest = isTest;
     Iglu.Init(canvas);
     gl = Iglu.GL();
 
@@ -86,6 +87,7 @@ export class ShaderHandler {
       .uniformi('state', 0)
       .uniform('time', this.t)
       .uniform('scale', this.viewsize)
+      .uniform('test', this.isTest ? 1.0 : 0.0)
       .draw(gl.TRIANGLE_STRIP, 4);
     return this;
   }
