@@ -1,6 +1,6 @@
 import { Config } from './config.js';
 
-const random = fxrand;
+const random = $fx.rand;
 const choice = (from) => from[random() * from.length | 0];
 // Float format and quantization.
 const ff = (n) => {
@@ -11,8 +11,7 @@ const ff = (n) => {
   return res;
 };
 
-const VARS = ['x', 'y', 'p', 'q', 'tt'];
-let NOISE_COUNT = 0;
+let VARS = ['x', 'y', 'p', 'q', 'tt'];
 
 class AConst {
   constructor(val) {
@@ -77,11 +76,37 @@ class AOp {
   }
 }
 
+class ASimpleOp {
+  constructor(left_term, right_term, op) {
+    this.left_term = left_term;
+    this.right_term = right_term;
+    this.op = op;
+  }
+  print() {
+    return `(${this.left_term.print()} ${this.op} ${this.right_term.print()})`;
+  }
+  dependencies() {
+    return new Set(
+      [...this.left_term.dependencies(),
+       ...this.right_term.dependencies()]);
+  }
+  depth() {
+    return Math.max(
+      this.left_term.depth(), this.right_term.depth()) + 1;
+  }
+  static random(depth=0) {
+    return new AOp(
+      ASimpleExpr.random(depth + 1),
+      ASimpleExpr.random(depth + 1),
+      choice(Object.values(ARITHMETIC_OPS)));
+  }
+}
+
 class AMath {
   constructor(func, args) {
     this.func = func;
     this.args = args;
-    this.value = fxrand() > 0.5 ? 1.0 : -1.0;
+    this.value = random() > 0.5 ? 1.0 : -1.0;
   }
   print() {
     const print_args = () => this.args.map(a =>  `${a.expr.print()}`);
@@ -105,8 +130,8 @@ class AMath {
         ))`;
     }
     if (this.func === 'mix') {
-      return `${this.func}(fract(${printed_args[0]}),
-        fract(${printed_args[0]} + ${printed_args[1]}), ${printed_args[2]})`;
+      return `${this.func}((${printed_args[0]}),
+        (${printed_args[0]} + ${printed_args[1]}), ${printed_args[2]})`;
     }
     if (this.func === 'sin' || this.func === 'cos') {
       return `${this.func}(${ff(this.value)} * ${printed_args[0]})`;
@@ -127,17 +152,7 @@ class AMath {
   }
   static random(depth=0) {
     const funcs = {...FUNCS};
-    if (NOISE_COUNT < 8) {
-      // funcs['noise'] = {
-      //   params: 2,
-      //   arg_types: [ALL_ARGS, ALL_ARGS, ALL_ARGS, ALL_ARGS],
-      // };
-    }
-
     const [func, info] = choice(Object.entries(funcs));
-    // if (func === 'noise') {
-    //   NOISE_COUNT++;
-    // }
 
     const args = [];
     for (let i = 0; i < info.params; ++i) {
@@ -166,8 +181,11 @@ class AMath {
 }
 
 class AExpr {
-  static random(depth=0) {
-    const choices = [AConst, AVar, AMath, AOp];
+  static random(depth=0, doMath=true) {
+    const choices = [AConst, AVar, AOp];
+    if (doMath) {
+      choices.push(AMath);
+    }
     if (depth < Config.min_expr_depth) {
       choices.push(AExpr);
     }
@@ -175,12 +193,19 @@ class AExpr {
   }
 }
 
+class ASimpleExpr {
+  static random(depth=0) {
+    const choices = [AConst, AVar, ASimpleOp];
+    return choice(choices).random(depth + 1);
+  }
+}
+
 export const BuildProgram = () => {
+  VARS = ['x', 'y', 'p', 'q', 'tt'];
   const make = () => {
     while (true) {
       const expr = AExpr.random(0);
       if (expr.depth() < Config.min_depth) {
-        NOISE_COUNT = 0;
         continue;
       }
       return expr;
@@ -193,6 +218,26 @@ export const BuildProgram = () => {
     v0 = ${p0.print()};
   `;
 };
+
+export const BuildColorProgram = () => {
+  VARS = ['v0', 'v1', 'v2', 'v3', 'v4'];
+  const make = () => {
+    while (true) {
+      const expr = ASimpleExpr.random(0);
+      return expr;
+    }
+  };
+
+  const r = make();
+  const g = make();
+  const b = make();
+
+  return `
+    r = ${r.print()};
+    g = ${g.print()};
+    b = ${b.print()};
+  `;
+}
 
 const ALL_ARGS = [AVar, AConst, AExpr];
 
@@ -241,10 +286,10 @@ FUNCS['pow'] = {
   params: 2,
   arg_types: [ALL_ARGS, ALL_ARGS],
 };
-// FUNCS['mix'] = {
-//   params: 3,
-//   arg_types: [ALL_ARGS, ALL_ARGS, ALL_ARGS],
-// };
+FUNCS['mix'] = {
+  params: 3,
+  arg_types: [ALL_ARGS, ALL_ARGS, ALL_ARGS],
+};
 FUNCS['dot'] = {
   params: 4,
   arg_types: [ALL_ARGS, ALL_ARGS, ALL_ARGS, ALL_ARGS],

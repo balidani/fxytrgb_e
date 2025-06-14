@@ -30,7 +30,7 @@ For more information, please refer to <http://unlicense.org/>
 # `*`.js
 
 ```
-Copyright (c) 2022, balidani
+Copyright (c) 2025, balidani
 
 Permission to use, copy, modify, and/or distribute this software for any purpose
 with or without fee is hereby granted, provided that the above copyright notice

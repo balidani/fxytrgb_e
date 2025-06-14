@@ -8,46 +8,12 @@
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧫</text></svg>"
     />
     <link rel="stylesheet" href="style.css"/>
-    <script id="fxhash-snippet">
-      //---- do not edit the following code (you can indent as you wish)
-      let alphabet = "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
-      var fxhash = "oo" + Array(49).fill(0).map(_=>alphabet[(Math.random()*alphabet.length)|0]).join('')
-      // oo5EThye6fWBQi6dtAH8ufszGrqZAS41atMz7RVP4HqcC4D6Q9A
-      // oo75xftnV9AdfoiSgaCPQHhX3D8TkSVS5voCajKQTMpdEM49JkQ
-      // fxhash = "oo6FjTqmfJS5KS3wwjjUXuCcQDdEmhnEXBptkSgra7bNsH3L2rR";
-      // fxhash = "oozqDwFfb9YjoqseCw3X1vcWPx2DH1xn1E8xPXT32F7QdccRmwt";
-      let b58dec = str=>[...str].reduce((p,c)=>p*alphabet.length+alphabet.indexOf(c)|0, 0)
-      let fxhashTrunc = fxhash.slice(2)
-      let regex = new RegExp(".{" + ((fxhashTrunc.length/4)|0) + "}", 'g')
-      let hashes = fxhashTrunc.match(regex).map(h => b58dec(h))
-      let sfc32 = (a, b, c, d) => {
-        return () => {
-          a |= 0; b |= 0; c |= 0; d |= 0
-          var t = (a + b | 0) + d | 0
-          d = d + 1 | 0
-          a = b ^ b >>> 9
-          b = c + (c << 3) | 0
-          c = c << 21 | c >>> 11
-          c = c + t | 0
-          return (t >>> 0) / 4294967296
-        }
-      }
-      var fxrand = sfc32(...hashes)
-      // true if preview mode active, false otherwise
-      // you can append preview=1 to the URL to simulate preview active
-      var isFxpreview = new URLSearchParams(window.location.search).get('preview') === "1"
-      // call this method to trigger the preview
-      function fxpreview() {
-        console.log("fxhash: TRIGGER PREVIEW")
-      }
-      //---- /do not edit the following code
-    </script>
-    <script type="module" src="iglu.js"></script>
-    <script type="module" src="ui.js"></script>
+    <script src="fxhash.js"></script>
+    <script src="script.js"></script>
   </head>
   <body>
     <div class="canvas-container">
-    <canvas id="canvas" width="2048" height="2048"></canvas>
+    <canvas id="canvas" width="1024" height="1024"></canvas>
     </div>
   </body>
 </html>
