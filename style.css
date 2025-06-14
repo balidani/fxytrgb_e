@@ -17,6 +17,6 @@ canvas {
   left: 50%;
   transform: translate(-50%, -50%);
   aspect-ratio: 1 / 1;
-  width: 100vmax;   /* Fill based on the larger dimension */
-  height: 100vmax;
+  width: 110vmax;   /* Fill based on the larger dimension */
+  height: 110vmax;
 }

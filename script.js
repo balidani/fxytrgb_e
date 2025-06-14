@@ -597,10 +597,10 @@ uniform sampler2D state;
 uniform vec2 scale;
 uniform float time;
 uniform float isTest;
+uniform float deltaY; // Center of focus (0.0 to 1.0)
 out vec4 fragColor;
 
 // Tilt-shift parameters
-const float focusCenter = 0.5; // Center of focus (0.0 to 1.0)
 const float focusWidth = 0.33;  // Width of the in-focus area
 const float blurStrength = 4.0; // Maximum blur strength
 
@@ -643,7 +643,7 @@ void main() {
     vec2 screenPosition = gl_FragCoord.xy / scale;
     
     // Calculate distance from focus center (vertical tilt-shift)
-    float distFromCenter = abs(screenPosition.y - focusCenter);
+    float distFromCenter = abs(screenPosition.y - deltaY);
 
     // Calculate blur amount based on distance from center
     float blurAmount = smoothstep(0.0, focusWidth, distFromCenter) * blurStrength;
@@ -768,6 +768,7 @@ class ShaderHandler {
       .uniform('time', this.t)
       .uniform('scale', this.viewsize)
       .uniform('test', this.isTest ? 1.0 : 0.0)
+      .uniform('deltaY', this.deltaY)
       .draw(gl.TRIANGLE_STRIP, 4);
     return this;
   }
