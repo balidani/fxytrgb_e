@@ -378,7 +378,10 @@ class AExpr {
 
 class ASimpleExpr {
   static random(depth=0) {
-    const choices = [AConst, AVar, ASimpleOp];
+    const choices = [AVar];
+    if (depth < 4) {
+      choices.push(ASimpleOp);
+    }
     return choice(choices).random(depth + 1);
   }
 }
@@ -559,9 +562,9 @@ void main() {
   ${program}
 
   float v1 = smoothstep(0.0, 1.0, v0);
-  float v2 = smoothstep(0.0, 2.0, v0);
-  float v3 = smoothstep(0.0, 3.0, v0);
-  float v4 = smoothstep(0.0, 4.0, v0);
+  float v2 = smoothstep(0.0, 2.0, v0) * 0.5;
+  float v3 = smoothstep(0.0, 4.0, v0) * 0.25;
+  float v4 = smoothstep(0.0, 8.0, v0) * 0.125;
 
   float r = 0.0;
   float g = 0.0;
@@ -570,9 +573,9 @@ void main() {
   ${colorProgram}
 
   fragColor = vec4(
-    smoothstep(0.0, 1.0, r),
-    smoothstep(0.0, 1.0, g),
-    smoothstep(0.0, 1.0, b),
+    smoothstep(0.0, 1.0, abs(r)) * 0.8 + 0.1,
+    smoothstep(0.0, 1.0, abs(g)) * 0.8 + 0.1,
+    smoothstep(0.0, 1.0, abs(b)) * 0.8 + 0.1,
     1.0);
 
 }`;
@@ -846,29 +849,28 @@ const testProgram = (program, colorProgram) => {
 };
 
 const testedProgram = () => {
-  let program = null;
   let tries = 0;
   while (tries < 100) {
-    program = BuildProgram();
+    const program = BuildProgram();
     const colorProgram = BuildColorProgram();
     if (testProgram(program, colorProgram)) {
-      return {program: program, colorProgram: colorProgram};
+      return {program, colorProgram};
     }
     tries++;
   }
   console.log('gave up');
-  return {program: BuildProgram(), colorProgram: colorProgram};
+  return {program: BuildProgram(), colorProgram: BuildColorProgram()};
 };
 
 const start = () => {
-  let program = testedProgram();
-  console.log(program.program);
-  console.log(program.colorProgram);
+  const {program, colorProgram} = testedProgram();
+  console.log(program);
+  console.log(colorProgram);
   console.log($fx.hash);
 
   const canvas = document.getElementById('canvas');
   let handler = new ShaderHandler(canvas);
-  handler.new(program.program, program.colorProgram);
+  handler.new(program, colorProgram);
 
   const play = () => {
     handler.timer = setInterval(() => {
