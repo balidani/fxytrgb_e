@@ -171,11 +171,11 @@ const Iglu = {
 let Config = {
   min_depth: 20,
   min_expr_depth: 20,
-  seed: $fx.rand() * 4.0,
+  seed: fxrand() * 4.0,
 };
 
 
-const random = $fx.rand;
+const random = fxrand;
 const choice = (from) => from[random() * from.length | 0];
 // Float format and quantization.
 const ff = (n) => {
@@ -410,7 +410,7 @@ const BuildColorProgram = () => {
   const make = () => {
     while (true) {
       const expr = ASimpleExpr.random(0);
-      if (expr.depth() < 2) {
+      if (expr.depth() < 3) {
         continue;
       }
       if (expr.dependencies().size < 1) {
@@ -438,46 +438,46 @@ FUNCS['sin'] = {
   params: 1,
   arg_types: [ALL_ARGS],
 };
-FUNCS['cos'] = {
-  params: 1,
-  arg_types: [ALL_ARGS],
-};
-FUNCS['tan'] = {
-  params: 1,
-  arg_types: [ALL_ARGS],
-};
-FUNCS['sign'] = {
-  params: 1,
-  arg_types: [ALL_ARGS],
-};
+// FUNCS['cos'] = {
+//   params: 1,
+//   arg_types: [ALL_ARGS],
+// };
+// FUNCS['tan'] = {
+//   params: 1,
+//   arg_types: [ALL_ARGS],
+// };
+// FUNCS['sign'] = {
+//   params: 1,
+//   arg_types: [ALL_ARGS],
+// };
 FUNCS['fract'] = {
   params: 1,
   arg_types: [ALL_ARGS],
 };
-FUNCS['exp'] = {
-  params: 1,
-  arg_types: [ALL_ARGS],
-};
-FUNCS['atan'] = {
-  params: 2,
-  arg_types: [ALL_ARGS, ALL_ARGS],
-};
+// FUNCS['exp'] = {
+//   params: 1,
+//   arg_types: [ALL_ARGS],
+// };
+// FUNCS['atan'] = {
+//   params: 2,
+//   arg_types: [ALL_ARGS, ALL_ARGS],
+// };
 FUNCS['mod'] = {
   params: 2,
   arg_types: [ALL_ARGS, ALL_ARGS],
 };
-FUNCS['min'] = {
-  params: 2,
-  arg_types: [ALL_ARGS, ALL_ARGS],
-};
-FUNCS['max'] = {
-  params: 2,
-  arg_types: [ALL_ARGS, ALL_ARGS],
-};
-FUNCS['pow'] = {
-  params: 2,
-  arg_types: [ALL_ARGS, ALL_ARGS],
-};
+// FUNCS['min'] = {
+//   params: 2,
+//   arg_types: [ALL_ARGS, ALL_ARGS],
+// };
+// FUNCS['max'] = {
+//   params: 2,
+//   arg_types: [ALL_ARGS, ALL_ARGS],
+// };
+// FUNCS['pow'] = {
+//   params: 2,
+//   arg_types: [ALL_ARGS, ALL_ARGS],
+// };
 FUNCS['mix'] = {
   params: 3,
   arg_types: [ALL_ARGS, ALL_ARGS, ALL_ARGS],
@@ -548,7 +548,8 @@ vec3 hsv2rgb(vec3 c)
 void main() {
   vec2 at = gl_FragCoord.xy / scale;
   vec4 self = texture(state, at);
-  at -= vec2(deltaX, deltaY);
+  // at -= vec2(deltaX, deltaY);
+  at -= vec2(0.5, 0.5);
   at *= 8.0;
   float tt = (t * 0.001);
   float x = at.x;
@@ -561,10 +562,12 @@ void main() {
 
   ${program}
 
-  float v1 = smoothstep(0.0, 1.0, v0);
-  float v2 = smoothstep(0.0, 2.0, v0) * 0.5;
-  float v3 = smoothstep(0.0, 4.0, v0) * 0.25;
-  float v4 = smoothstep(0.0, 8.0, v0) * 0.125;
+  v0 = clamp(v0, 0.0, 1.0);
+
+  float v1 = smoothstep(-1.0, 1.0, v0);
+  float v2 = smoothstep(-2.0, 2.0, v0) * 0.5;
+  float v3 = smoothstep(-4.0, 4.0, v0) * 0.25;
+  float v4 = smoothstep(-8.0, 8.0, v0) * 0.125;
 
   float r = 0.0;
   float g = 0.0;
@@ -572,10 +575,14 @@ void main() {
 
   ${colorProgram}
 
+  r = v0;
+  g = v0;
+  b = v0;
+
   fragColor = vec4(
-    smoothstep(0.0, 1.0, abs(r)) * 0.8 + 0.1,
-    smoothstep(0.0, 1.0, abs(g)) * 0.8 + 0.1,
-    smoothstep(0.0, 1.0, abs(b)) * 0.8 + 0.1,
+    smoothstep(0.0, 1.0, r),
+    smoothstep(0.0, 1.0, g),
+    smoothstep(0.0, 1.0, b),
     1.0);
 
 }`;
@@ -605,7 +612,7 @@ out vec4 fragColor;
 
 // Tilt-shift parameters
 const float focusWidth = 0.33;  // Width of the in-focus area
-const float blurStrength = 4.0; // Maximum blur strength
+const float blurStrength = 8.0; // Maximum blur strength
 
 float rand(vec2 n) { 
     return fract(sin(dot(n, vec2(12.9898, 7.1414))) * 43459.5453);
@@ -646,7 +653,8 @@ void main() {
     vec2 screenPosition = gl_FragCoord.xy / scale;
     
     // Calculate distance from focus center (vertical tilt-shift)
-    float distFromCenter = abs(screenPosition.y - deltaY);
+    // float distFromCenter = abs(screenPosition.y - deltaY);
+    float distFromCenter = abs(screenPosition.y - 0.5);
 
     // Calculate blur amount based on distance from center
     float blurAmount = smoothstep(0.0, focusWidth, distFromCenter) * blurStrength;
@@ -713,8 +721,8 @@ class ShaderHandler {
 
     this.t = 0;
     this.seed = Config.seed;
-    this.deltaX = $fx.rand() * 0.6 + 0.2
-    this.deltaY = $fx.rand() * 0.6 + 0.2
+    this.deltaX = fxrand() * 0.6 + 0.2
+    this.deltaY = fxrand() * 0.6 + 0.2
   }
   set(state) {
     const rgba = new Uint8Array(this.statesize[0] * this.statesize[1] * 4);
@@ -866,7 +874,7 @@ const start = () => {
   const {program, colorProgram} = testedProgram();
   console.log(program);
   console.log(colorProgram);
-  console.log($fx.hash);
+  console.log(fxhash);
 
   const canvas = document.getElementById('canvas');
   let handler = new ShaderHandler(canvas);
@@ -876,7 +884,7 @@ const start = () => {
     handler.timer = setInterval(() => {
         if (handler.t == 256) {
           // console.log('fxpreview');
-          $fx.preview();
+          fxpreview();
           // clearInterval(handler.timer);
         }
         handler.step();
@@ -935,16 +943,23 @@ const start = () => {
 
 window.addEventListener('DOMContentLoaded', () => {
   start();
-  
+
+  const hash = `?hash=${fxhash}`;
+  if (window.location.search !== hash) {
+    window.location.search = hash;
+  }
   document.getElementById('canvas').addEventListener('click', function() {
-    window.location.reload();
+
+    const alphabet = "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
+    const hash = "oo" + Array(49).fill(0).map(_=>alphabet[(Math.random()*alphabet.length)|0]).join('')
+    window.location.search = `?hash=${hash}`;
   });
 });
 
 
 // const download = function() {
 //   var link = document.createElement('a');
-//   link.download = `${window.$fx.hash}.png`;
+//   link.download = `${window.fxhash}.png`;
 //   link.href = document.getElementById('canvas').toDataURL()
 //   link.click();
 // };
