@@ -169,8 +169,8 @@ const Iglu = {
 };
 
 let Config = {
-  min_depth: 20,
-  min_expr_depth: 20,
+  min_depth: 8,
+  min_expr_depth: 12,
   seed: fxrand() * 4.0,
 };
 
@@ -186,7 +186,7 @@ const ff = (n) => {
   return res;
 };
 
-let VARS = ['x', 'y', 'p', 'q', 'tt'];
+let VARS = ['z'];
 
 class AConst {
   constructor(val) {
@@ -387,7 +387,7 @@ class ASimpleExpr {
 }
 
 const BuildProgram = () => {
-  VARS = ['x', 'y', 'p', 'q', 'tt'];
+  VARS = ['x', 'y', 'p', 'q', 'tt', 'v0', 'v1', 'v0', 'v1', 'v0', 'v1'];
   const make = () => {
     while (true) {
       const expr = AExpr.random(0);
@@ -399,14 +399,18 @@ const BuildProgram = () => {
   };
 
   const p0 = make();
+  const p1 = make();
+  const p2 = make();
 
   return `
     v0 = ${p0.print()};
+    v1 = ${p1.print()};
+    v2 = ${p2.print()};
   `;
 };
 
 const BuildColorProgram = () => {
-  VARS = ['v0', 'v1', 'v2', 'v3', 'v4'];
+  VARS = ['r', 'g', 'b'];
   const make = () => {
     while (true) {
       const expr = ASimpleExpr.random(0);
@@ -557,17 +561,25 @@ void main() {
 
   float p = atan(at.y, at.x) / PI * 2.0;
   float q = length(at);
+
+  // float h0;
+  // float h1;
   
+  // float nw = texture(state, (gl_FragCoord.xy + vec2(-8.0, 0.0)) / scale).r;
+  // float ne = texture(state, (gl_FragCoord.xy + vec2(8.0, 0.0)) / scale).r;
+  // float nn = texture(state, (gl_FragCoord.xy + vec2(0.0, -8.0)) / scale).r;
+  // float ns = texture(state, (gl_FragCoord.xy + vec2(0.0, 8.0)) / scale).r;
+
   float v0 = 0.0;
+  float v1 = 0.0;
+  float v2 = 0.0;
 
   ${program}
 
   v0 = clamp(v0, 0.0, 1.0);
+  v1 = clamp(v1, 0.0, 1.0);
+  v2 = clamp(v2, 0.0, 1.0);
 
-  float v1 = smoothstep(-1.0, 1.0, v0);
-  float v2 = smoothstep(-2.0, 2.0, v0) * 0.5;
-  float v3 = smoothstep(-4.0, 4.0, v0) * 0.25;
-  float v4 = smoothstep(-8.0, 8.0, v0) * 0.125;
 
   float r = 0.0;
   float g = 0.0;
@@ -575,15 +587,36 @@ void main() {
 
   ${colorProgram}
 
-  r = v0;
-  g = v0;
-  b = v0;
+  r = (v0 + v1 + v2) * 0.5;
+  g = (v0 + v1 + v2) * 0.5;
+  b = (v0 + v1 + v2) * 0.5;
 
-  fragColor = vec4(
-    smoothstep(0.0, 1.0, r),
-    smoothstep(0.0, 1.0, g),
-    smoothstep(0.0, 1.0, b),
-    1.0);
+  // float hue0 = (h0 + 0.5) * 0.5;
+  // vec3 rgb0 = hsv2rgb(mix(
+  //   vec3(hue0, 0.1, 0.1),
+  //   vec3(hue0 - 0.1, 0.6, 0.8),
+  //   v0));
+  // float hue1 = h0 - h1;
+  // vec3 rgb1 = hsv2rgb(mix(
+  //   vec3(hue1, 0.1, 0.1),
+  //   vec3(hue1 - 0.1, 0.6, 0.8),
+  //   v1));
+
+  // vec3 rgb = mix(rgb0, rgb1, 0.5);
+  // r = rgb.r;
+  // g = rgb.g;
+  // b = rgb.b;
+
+  vec3 rgb = vec3(r, g, b);
+
+  // fragColor = vec4(self.rgb + rgb * 0.1, 1.0);
+  fragColor = vec4(rgb, 1.0);
+
+  // fragColor = vec4(
+  //   smoothstep(0.0, 1.0, r),
+  //   smoothstep(0.0, 1.0, g),
+  //   smoothstep(0.0, 1.0, b),
+  //   1.0);
 
 }`;
   return res;
@@ -612,7 +645,7 @@ out vec4 fragColor;
 
 // Tilt-shift parameters
 const float focusWidth = 0.33;  // Width of the in-focus area
-const float blurStrength = 8.0; // Maximum blur strength
+const float blurStrength = 4.0; // Maximum blur strength
 
 float rand(vec2 n) { 
     return fract(sin(dot(n, vec2(12.9898, 7.1414))) * 43459.5453);
